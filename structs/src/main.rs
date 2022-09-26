@@ -12,6 +12,18 @@ struct Rectangle {
     width: u32,
     height: u32,
 }
+impl Rectangle {
+    fn area(&self) -> u32 {
+        self.width * self.height
+    }
+    fn width(&self) -> bool {
+        self.width > 0
+    }
+    fn can_hold(&self, other: &Rectangle) -> bool {
+        (self.width > other.width && self.height > other.height)
+            || (self.width > other.height && self.height > other.width)
+    }
+}
 
 fn main() {
     implement_user();
@@ -24,7 +36,7 @@ fn main() {
 
     implement_rectangle();
 }
-
+// ------------------------ Chapter 5.1 ------------------------ //
 fn implement_user() {
     // create instance of User using the factory function
     let mut user1 = build_user(String::from("asdf@mail.com"), String::from("_"));
@@ -61,21 +73,32 @@ fn print_user(user: &User) {
         user.username, user.email, user.active, user.sign_in_count
     );
 }
-
+// ------------------------ Chapter 5.2-3 ------------------------ //
 fn implement_rectangle() {
-    let scale = 2;
+    let scale = 10;
+
     let rect1 = Rectangle {
-        width: dbg!(30 * scale), // dbg! helps log expressions
+        width: dbg!(3 * scale), // dbg! helps log expressions
         height: 50,
+    };
+    let rect2 = Rectangle {
+        width: 40,
+        height: 1 * scale,
+    };
+    let rect3 = Rectangle {
+        width: 6 * scale,
+        height: 45,
     };
 
     println!("rect1: {:#?}\n", rect1);
-
     println!(
         "The area of the rectangle is {} square pixels.",
-        area(&rect1)
-    )
-}
-fn area(rectangle: &Rectangle) -> u32 {
-    rectangle.width * rectangle.height
+        rect1.area()
+    );
+    if rect1.width() {
+        println!("The rectangle has a nonzero width; it is {}", rect1.width);
+    }
+
+    println!("Can rect1 hold rect2? {}", rect1.can_hold(&rect2));
+    println!("Can rect1 hold rect3? {}", rect1.can_hold(&rect3));
 }
