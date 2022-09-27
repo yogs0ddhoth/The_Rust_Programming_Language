@@ -10,6 +10,7 @@ enum Message {
     Write(String),              // single value tuple (String)
     ChangeColor(i32, i32, i32), // tuple (i32)
 }
+// best not to make an enum you won't use all of
 impl Message {
     fn call(&self) {
         match &self {
