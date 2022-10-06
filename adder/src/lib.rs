@@ -33,9 +33,20 @@ pub fn add(left: usize, right: usize) -> usize {
     left + right
 }
 
-#[cfg(test)]
+/* Unit Tests */
+#[cfg(test)] // only compile this code if tests are being run
 mod tests {
     use super::*;
+
+    // #[test] functions will be run on parallel threads
+
+    // cargo test {string} <- run all test functions whose names match the string
+    // cargo test -- --test-threads={number} <- specify how many test threads to use
+
+    // cargo test -- --show-output <- will show printed values
+
+    // cargo test -- --ignored <- run only ignored tests
+    // cargo test -- --include-ignored <- run all tests, including ignored
 
     #[test] // annotate test function
     fn it_works() -> Result<(), String> {
@@ -76,6 +87,7 @@ mod tests {
     }
 
     #[test]
+    #[ignore] // exclude this test from default run
     #[should_panic(
         expected = "Guess value must be less than or equal to 100." // expected panic message
     )] // function should panic
