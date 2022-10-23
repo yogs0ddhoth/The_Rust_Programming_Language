@@ -1,6 +1,6 @@
 use std::ops::Deref;
 
-/// Deref is implemented on MyBox, allowing the contained value to be dereferenced 
+/// Deref is implemented on MyBox, allowing the contained value to be dereferenced
 pub struct MyBox<T>(T);
 
 impl<T> Deref for MyBox<T> {
