@@ -1,26 +1,26 @@
 mod custom_smart_pointer;
+mod limit_tracker;
 mod list;
 mod my_box;
-mod limit_tracker;
 
 use custom_smart_pointer::CustomSmartPointer;
+use limit_tracker::{LimitTracker, Messenger};
 use list::List::{self, Cons, Nil};
 use my_box::MyBox;
-use limit_tracker::{Messenger, LimitTracker};
-use std::rc::Rc; // i.e. Reference Count
-/** 
+/**
  * RefCell implements the borrow and borrow_mut to give interior mutability
  * which returns the smart pointer Ref<T> and RefMut<T> respectively
  * which both implement Deref, and so can be treated as regular references
- * 
+ *
  * RefCell will track how many Ref/RefMut pointers are active, following normal borrow rules
  */
 use std::cell::RefCell;
+use std::rc::Rc; // i.e. Reference Count
 
 /// Box<T> is a smart pointer that allows you to store data on the heap,
 /// leaving a pointer to the data on the stack
 fn new_box<T>(b: T) -> Box<T> {
-    /* When Box goes out of scope it will be dropped */ 
+    /* When Box goes out of scope it will be dropped */
     Box::new(b)
 }
 
@@ -29,15 +29,11 @@ fn cons_list(vec: Vec<i32>) -> List {
     let mut args = vec.iter();
 
     Cons(
-        Rc::new(RefCell::new(
-            *args.next().unwrap()
-        )),
-        Rc::new(
-            match args.next() {
-                Some(_) => cons_list(vec[1..vec.len()].to_vec()),
-                None => Nil,
-            }
-        ),
+        Rc::new(RefCell::new(*args.next().unwrap())),
+        Rc::new(match args.next() {
+            Some(_) => cons_list(vec[1..vec.len()].to_vec()),
+            None => Nil,
+        }),
     )
 }
 
@@ -52,25 +48,26 @@ struct MockMessanger {
 }
 impl MockMessanger {
     fn new() -> MockMessanger {
-        MockMessanger { sent_messages: RefCell::new(vec![]) }
+        MockMessanger {
+            sent_messages: RefCell::new(vec![]),
+        }
     }
 }
 impl Messenger for MockMessanger {
     fn send(&self, msg: &str) {
-        self.sent_messages 
+        self.sent_messages
             .borrow_mut() // returns mutable reference to value
             .push(String::from(msg));
     }
 }
 
-/* without the Deref trait, the compiler can only dereference & */ 
+/* without the Deref trait, the compiler can only dereference & */
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn it_sends_an_over_75_percent_warning_message() {
-
         let mock_messenger = MockMessanger::new();
         let mut limit_tracker = LimitTracker::new(&mock_messenger, 100);
 
@@ -86,7 +83,7 @@ mod tests {
         assert_eq!(5, x);
         assert_eq!(5, *y);
 
-        /* Variables are dropped in reverse order of their creation */ 
+        /* Variables are dropped in reverse order of their creation */
         let _c = CustomSmartPointer::new(String::from("created first, dropped last - usually"));
         let _d = CustomSmartPointer::new(String::from("created last, dropped first"));
         println!("CustomSmartPointers created.");
@@ -126,17 +123,11 @@ mod tests {
     fn multiple_borrow_mut_test() {
         let value = Rc::new(RefCell::new(5));
 
-        let a = Rc::new(
-            Cons(Rc::clone(&value), Rc::new(Nil))
-        );
-        let b = Cons(
-            Rc::new(RefCell::new(3)), Rc::clone(&a)
-        );
-        let c = Cons(
-            Rc::new(RefCell::new(4)), Rc::clone(&a)
-        );
+        let a = Rc::new(Cons(Rc::clone(&value), Rc::new(Nil)));
+        let b = Cons(Rc::new(RefCell::new(3)), Rc::clone(&a));
+        let c = Cons(Rc::new(RefCell::new(4)), Rc::clone(&a));
 
-        /**
+        /*
          * value can be deferenced and mutated because it's wrapped in RefCell<T>
          * this affect all instances of borrowed ownership from Rc<T>
          */

@@ -1,7 +1,4 @@
-use std::{
-    rc::Rc, 
-    cell::RefCell
-};
+use std::{cell::RefCell, rc::Rc};
 
 #[derive(Debug)]
 pub enum List {
@@ -10,9 +7,8 @@ pub enum List {
          * Wrapping RefCell<T> in Rc<T> allows for multiple mutable pointers
          */
         Rc<RefCell<i32>>,
-
         /**
-         * Rc<T> holds and tracks multiple ownership of the values it references. 
+         * Rc<T> holds and tracks multiple ownership of the values it references.
          * Using the Rc type to store List makes memory allocation knowable, allowing recursive data structures
          */
         Rc<List>,
