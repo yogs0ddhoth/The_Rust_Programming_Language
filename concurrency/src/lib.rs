@@ -4,7 +4,18 @@ mod message_passing;
 #[cfg(test)]
 pub mod tests {
     use super::*;
-    use std::{thread, time::Duration, sync::{Arc, Mutex}};
+    use std::{thread, time::Duration, sync::{Arc, Mutex},
+        /* NOTE: MANUALLY IMPLEMENTING THESE TYPES IS UNSAFE */
+        marker::{
+            /* Indicate that the type implementing this trait is can be transferred between threads */
+            Send, // Most Rust types implement Send, with Rc<T> being a notable exception
+
+            /* Indicate that type being implemented can be referenced from multiple thrads 
+             * Any type T is Sync if &T is Send
+             */
+            Sync // Most types are also Sync, likewise Rc<T> is also not Sync, and neither are other Cell<T> types
+        }
+    };
 
     #[test]
     fn basic_threading() {
